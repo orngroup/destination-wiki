@@ -1,0 +1,672 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .hub-root { min-height: 100vh; background: var(--color-background-tertiary); }
+
+  .top-nav {
+    background: #0a0a0a;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-logo-bars { display: flex; align-items: flex-end; gap: 3px; height: 22px; }
+  .nav-bar { border-radius: 10px; width: 5px; }
+  .nav-wordmark { color: #fff; font-size: 15px; font-weight: 500; letter-spacing: 0.08em; }
+  .nav-badge { background: #1e3a5f; color: #7eb8f7; font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+
+  .hub-hero {
+    background: #0a0a0a;
+    padding: 3rem 2rem 2.5rem;
+    border-bottom: 0.5px solid #222;
+  }
+  .hub-hero h1 { color: #fff; font-size: 26px; font-weight: 500; margin-bottom: 6px; }
+  .hub-hero p { color: #888; font-size: 14px; }
+  .hub-search {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 10px;
+    max-width: 480px;
+  }
+  .hub-search input {
+    flex: 1;
+    background: #1a1a1a;
+    border: 0.5px solid #333;
+    border-radius: var(--border-radius-md);
+    color: #fff;
+    padding: 10px 14px;
+    font-size: 14px;
+    outline: none;
+  }
+  .hub-search input::placeholder { color: #555; }
+  .hub-search input:focus { border-color: #555; }
+
+  .region-tabs {
+    background: var(--color-background-primary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    padding: 0 2rem;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .region-tabs::-webkit-scrollbar { display: none; }
+  .rtab {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    background: none;
+    border-left: none; border-right: none; border-top: none;
+  }
+  .rtab:hover { color: var(--color-text-primary); }
+  .rtab.active { color: #1d6bce; border-bottom-color: #1d6bce; }
+
+  .hub-body { padding: 2rem; }
+  .region-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; color: var(--color-text-tertiary); text-transform: uppercase; margin-bottom: 12px; margin-top: 2rem; }
+  .region-label:first-child { margin-top: 0; }
+  .dest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+  .dest-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .dest-card:hover { border-color: var(--color-border-secondary); transform: translateY(-1px); }
+  .dest-card .flag { font-size: 22px; line-height: 1; }
+  .dest-card .name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .dest-card .region-tag { font-size: 11px; color: var(--color-text-tertiary); }
+  .dest-card.featured { border-color: #1d6bce44; }
+  .dest-card .built-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: #e6f1fb; color: #0c447c; display: inline-block; width: fit-content; }
+
+  /* DESTINATION PAGE */
+  .dest-page { min-height: 100vh; background: var(--color-background-tertiary); }
+  .dest-back {
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 2rem;
+    background: var(--color-background-primary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+  .dest-back:hover { color: var(--color-text-primary); }
+
+  .dest-hero-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    background: linear-gradient(135deg, #1a5276, #2874a6, #1abc9c);
+    position: relative;
+    overflow: hidden;
+  }
+  .dest-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.5rem 2rem;
+  }
+  .dest-hero-name { color: #fff; font-size: 32px; font-weight: 500; line-height: 1; }
+  .dest-hero-tagline { color: rgba(255,255,255,0.75); font-size: 14px; margin-top: 4px; }
+
+  .dest-quickstats {
+    background: #0a0a0a;
+    padding: 12px 2rem;
+    display: flex;
+    gap: 2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .dest-quickstats::-webkit-scrollbar { display: none; }
+  .qs-item { display: flex; flex-direction: column; gap: 2px; min-width: fit-content; }
+  .qs-label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.08em; }
+  .qs-value { font-size: 13px; color: #fff; font-weight: 500; }
+
+  .dest-nav {
+    background: var(--color-background-primary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    padding: 0 2rem;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 56px;
+    z-index: 50;
+  }
+  .dest-nav::-webkit-scrollbar { display: none; }
+  .dnav-tab {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    background: none;
+    border-left: none; border-right: none; border-top: none;
+  }
+  .dnav-tab:hover { color: var(--color-text-primary); }
+  .dnav-tab.active { color: #1d6bce; border-bottom-color: #1d6bce; }
+
+  .dest-body { padding: 1.5rem 2rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  .section-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title i { color: #1d6bce; font-size: 16px; }
+
+  .sell-bullets { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .sell-bullets li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; color: var(--color-text-primary); line-height: 1.5;
+  }
+  .sell-bullets li::before { content: "→"; color: #1d6bce; font-weight: 500; margin-top: 1px; flex-shrink: 0; }
+
+  .traveller-types { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
+  .tt-chip {
+    font-size: 12px; padding: 4px 12px; border-radius: 20px;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    color: var(--color-text-secondary);
+  }
+  .tt-chip.highlight { background: #e6f1fb; color: #0c447c; border-color: #b5d4f4; }
+
+  .flight-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .flight-table th {
+    text-align: left; padding: 8px 10px;
+    font-size: 11px; font-weight: 500; color: var(--color-text-tertiary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .flight-table td {
+    padding: 10px 10px; border-bottom: 0.5px solid var(--color-border-tertiary);
+    color: var(--color-text-primary); vertical-align: top;
+  }
+  .flight-table tr:last-child td { border-bottom: none; }
+  .direct-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: #eaf3de; color: #3b6d11; }
+  .connect-badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: #faeeda; color: #854f0b; }
+
+  .visa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .visa-item { padding: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+  .visa-item-label { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 4px; }
+  .visa-item-value { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .voa-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #eaf3de; color: #3b6d11; }
+
+  .overview-text { font-size: 13px; color: var(--color-text-primary); line-height: 1.7; }
+  .overview-text p + p { margin-top: 10px; }
+
+  .weather-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .month-cell {
+    text-align: center; padding: 8px 4px;
+    border-radius: var(--border-radius-md);
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+  .month-cell .mo { font-size: 10px; color: var(--color-text-tertiary); margin-bottom: 4px; }
+  .month-cell .temp { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+  .month-cell .icon { font-size: 14px; margin-bottom: 2px; display: block; }
+  .month-cell.peak { background: #e6f1fb; border-color: #b5d4f4; }
+  .month-cell.low { background: var(--color-background-secondary); }
+  .season-legend { display: flex; gap: 16px; margin-top: 10px; }
+  .sl-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
+  .sl-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .exp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+  .exp-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    background: var(--color-background-primary);
+  }
+  .exp-img {
+    height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .exp-info { padding: 10px; }
+  .exp-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+  .exp-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; }
+  .exp-cat { font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-top: 6px; display: inline-block; }
+
+  .practical-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .practical-item { padding: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+  .practical-item .pi-label { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+  .practical-item .pi-value { font-size: 13px; color: var(--color-text-primary); line-height: 1.5; }
+
+  .food-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .food-item { padding: 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); text-align: center; }
+  .food-emoji { font-size: 24px; display: block; margin-bottom: 6px; }
+  .food-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .food-desc { font-size: 11px; color: var(--color-text-secondary); }
+
+  .links-list { display: flex; flex-direction: column; gap: 8px; }
+  .link-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md); cursor: pointer;
+    transition: background 0.1s;
+  }
+  .link-row:hover { background: var(--color-background-secondary); }
+  .link-row-label { font-size: 13px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px; }
+  .link-row-label i { color: var(--color-text-tertiary); font-size: 15px; }
+
+  .disclaimer { font-size: 11px; color: var(--color-text-tertiary); line-height: 1.6; padding: 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); }
+
+  .coming-soon-overlay {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 300px; text-align: center; padding: 2rem;
+  }
+  .cs-icon { font-size: 40px; margin-bottom: 1rem; color: var(--color-text-tertiary); }
+  .cs-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .cs-text { font-size: 13px; color: var(--color-text-secondary); max-width: 320px; margin: 0 auto; }
+</style>
+
+<div class="hub-root" id="app"></div>
+
+<script>
+const DESTINATIONS = {
+  ASIA: ["Azerbaijan","Bali","Bhutan","Cambodia","Dubai","Hong Kong","Japan","Malaysia","Maldives","Philippines","Saudi Arabia","Singapore","Sri Lanka","Thailand","Turkey","Vietnam"],
+  EUROPE: ["Europe","France","Greece","Italy","Spain","Switzerland","United Kingdom"],
+  INDIA: ["Andamans","Goa","Himachal Pradesh","Jammu and Kashmir","Kerala","Rajasthan","Sikkim"],
+  OCEANIA: ["Australia","New Zealand"]
+};
+
+const FLAGS = {
+  "Azerbaijan":"🇦🇿","Bali":"🇮🇩","Bhutan":"🇧🇹","Cambodia":"🇰🇭","Dubai":"🇦🇪","Hong Kong":"🇭🇰","Japan":"🇯🇵","Malaysia":"🇲🇾","Maldives":"🇲🇻","Philippines":"🇵🇭","Saudi Arabia":"🇸🇦","Singapore":"🇸🇬","Sri Lanka":"🇱🇰","Thailand":"🇹🇭","Turkey":"🇹🇷","Vietnam":"🇻🇳","Europe":"🌍","France":"🇫🇷","Greece":"🇬🇷","Italy":"🇮🇹","Spain":"🇪🇸","Switzerland":"🇨🇭","United Kingdom":"🇬🇧","Andamans":"🏝️","Goa":"🏖️","Himachal Pradesh":"🏔️","Jammu and Kashmir":"🏔️","Kerala":"🌴","Rajasthan":"🏜️","Sikkim":"🏔️","Australia":"🇦🇺","New Zealand":"🇳🇿"
+};
+
+const BALI_DATA = {
+  name: "Bali",
+  flag: "🇮🇩",
+  tagline: "Island of the Gods — where spirituality meets paradise",
+  quickstats: {
+    "Capital": "Denpasar",
+    "Currency": "IDR (Rupiah)",
+    "Language": "Indonesian / Balinese",
+    "Time Zone": "WITA (UTC+8)",
+    "Best Time": "Apr – Oct"
+  },
+  sell: [
+    "One of the world's most recognisable bucket-list destinations — easy to sell, easy to get clients excited",
+    "Exceptional value: luxury villas with private pools start from ₹8,000/night — a huge draw for Indian couples and families",
+    "Rich cultural tapestry — temples, ceremonies, rice terraces — gives cultural travellers a deeply immersive experience beyond just beaches",
+    "Strong direct flight connectivity from all major Indian cities makes logistics simple for clients",
+    "Trip Factory recommended duration: 6–8 nights"
+  ],
+  travellerTypes: ["Honeymoon ✓", "Family", "Adventure", "Luxury", "Culture", "Solo", "Group"],
+  highlightTypes: ["Honeymoon", "Luxury"],
+  flights: [
+    { from: "Mumbai (BOM)", to: "Denpasar (DPS)", airlines: "IndiGo, Air India, Garuda", time: "~9h", type: "connecting", freq: "Daily" },
+    { from: "Delhi (DEL)", to: "Denpasar (DPS)", airlines: "IndiGo, Air Asia, Singapore Airlines", time: "~9–11h", type: "connecting", freq: "Daily" },
+    { from: "Bengaluru (BLR)", to: "Denpasar (DPS)", airlines: "IndiGo, Air Asia", time: "~7.5h", type: "connecting", freq: "Daily" },
+    { from: "Chennai (MAA)", to: "Denpasar (DPS)", airlines: "IndiGo, Malaysia Airlines", time: "~8h", type: "connecting", freq: "4–5x weekly" },
+    { from: "Hyderabad (HYD)", to: "Denpasar (DPS)", airlines: "IndiGo, Batik Air", time: "~9h", type: "connecting", freq: "Daily" },
+    { from: "Kolkata (CCU)", to: "Denpasar (DPS)", airlines: "Air Asia, IndiGo", time: "~8h", type: "connecting", freq: "4x weekly" },
+    { from: "Ahmedabad (AMD)", to: "Denpasar (DPS)", airlines: "IndiGo (via BOM)", time: "~11h", type: "connecting", freq: "Daily" }
+  ],
+  visa: {
+    type: "Visa on Arrival (VoA)",
+    cost: "USD 35 (≈ ₹2,900)",
+    validity: "30 days, extendable to 60 days",
+    processing: "On arrival — typically 15–30 mins",
+    documents: "Passport (valid 6+ months), onward ticket, accommodation proof, USD 35 cash or card",
+    portal: "https://molina.imigrasi.go.id",
+    badge: "voa"
+  },
+  overview: [
+    "Bali is Indonesia's most iconic island, renowned for its dramatic volcanic landscapes, ancient Hindu temples, lush rice terraces, and world-class surf beaches. It sits at the crossroads of the Indian Ocean, bringing together Polynesian traditions and South-East Asian hospitality in a way that captivates every type of traveller.",
+    "The island is divided into distinct regions, each with its own personality. Seminyak and Kuta offer buzzing nightlife and beach clubs; Ubud is the spiritual and cultural heart with its monkey forests and traditional arts; Uluwatu perches dramatically on clifftops above some of Bali's best surf; and Nusa Dua hosts the island's most exclusive resort properties.",
+    "For Indian travellers specifically, Bali is an exceptionally popular first international destination — the predominantly Hindu cultural milieu, vegetarian-friendly food options, and warm hospitality create an immediate sense of familiarity, while the destination still delivers the 'wow' of an overseas trip."
+  ],
+  weather: [
+    { mo: "Jan", temp: "28°", icon: "🌧️", type: "low" },
+    { mo: "Feb", temp: "28°", icon: "🌧️", type: "low" },
+    { mo: "Mar", temp: "28°", icon: "🌦️", type: "low" },
+    { mo: "Apr", temp: "29°", icon: "⛅", type: "shoulder" },
+    { mo: "May", temp: "29°", icon: "🌤️", type: "peak" },
+    { mo: "Jun", temp: "28°", icon: "☀️", type: "peak" },
+    { mo: "Jul", temp: "27°", icon: "☀️", type: "peak" },
+    { mo: "Aug", temp: "27°", icon: "☀️", type: "peak" },
+    { mo: "Sep", temp: "28°", icon: "🌤️", type: "peak" },
+    { mo: "Oct", temp: "29°", icon: "⛅", type: "shoulder" },
+    { mo: "Nov", temp: "29°", icon: "🌦️", type: "low" },
+    { mo: "Dec", temp: "28°", icon: "🌧️", type: "low" }
+  ],
+  experiences: [
+    { name: "Tanah Lot Temple", desc: "Sea temple at sunset — iconic Bali photograph", cat: "Culture", color: "#e6f1fb", textColor: "#0c447c", bg: "🛕" },
+    { name: "Ubud Rice Terraces", desc: "UNESCO-listed Tegallalang terraces — breath-taking walk", cat: "Nature", color: "#eaf3de", textColor: "#3b6d11", bg: "🌾" },
+    { name: "Mount Batur Sunrise", desc: "Active volcano trek — best done at 3am for sunrise", cat: "Adventure", color: "#faeeda", textColor: "#854f0b", bg: "🌋" },
+    { name: "Seminyak Beach", desc: "Stylish beach clubs, sunset cocktails, boutique shopping", cat: "Beach", color: "#e1f5ee", textColor: "#0f6e56", bg: "🌅" },
+    { name: "Uluwatu Kecak Dance", desc: "Fire-lit clifftop Kecak performance at dusk", cat: "Culture", color: "#e6f1fb", textColor: "#0c447c", bg: "🔥" },
+    { name: "Nusa Penida Snorkelling", desc: "Swim with manta rays at Crystal Bay", cat: "Adventure", color: "#faeeda", textColor: "#854f0b", bg: "🐠" },
+    { name: "Ubud Cooking Class", desc: "Learn to make satay, rendang and sambal from scratch", cat: "Food", color: "#fcebeb", textColor: "#a32d2d", bg: "🍛" },
+    { name: "Sacred Monkey Forest", desc: "Ancient temple complex home to Balinese long-tailed monkeys", cat: "Nature", color: "#eaf3de", textColor: "#3b6d11", bg: "🐒" }
+  ],
+  practical: [
+    { label: "Currency & money", icon: "ti-currency-dollar", value: "IDR Rupiah. USD widely accepted in tourist areas. ATMs available everywhere. Inform bank before travel." },
+    { label: "Health & vaccinations", icon: "ti-vaccine", value: "Hepatitis A & B recommended. Typhoid, Rabies for rural areas. Bring mosquito repellent." },
+    { label: "Electricity & plugs", icon: "ti-plug", value: "220V, Type C & F sockets. Indian Type D/M plugs may need an adaptor." },
+    { label: "Internet & SIM", icon: "ti-wifi", value: "Telkomsel or XL SIM cards at airport from ~₹600. Excellent 4G coverage. Most hotels have free WiFi." },
+    { label: "Tipping guide", icon: "ti-coin", value: "Not mandatory but appreciated. ₹100–200 for drivers; 5–10% at restaurants if no service charge." },
+    { label: "Dos & Don'ts", icon: "ti-info-circle", value: "Do: dress modestly at temples (sarongs provided). Don't: touch people's heads. Remove shoes at temple entrances." }
+  ],
+  food: [
+    { emoji: "🍖", name: "Babi Guling", desc: "Suckling pig — Bali's signature dish (non-veg)" },
+    { emoji: "🍛", name: "Nasi Goreng", desc: "Fried rice — widely vegetarian-adaptable" },
+    { emoji: "🥜", name: "Gado-Gado", desc: "Peanut sauce veggie salad — great for vegetarians" },
+    { emoji: "🍢", name: "Satay Lilit", desc: "Minced fish or chicken on lemongrass skewer" },
+    { emoji: "🌊", name: "Lawar", desc: "Mixed vegetables with coconut and meat" },
+    { emoji: "🍹", name: "Es Kelapa Muda", desc: "Fresh young coconut — refreshing and everywhere" }
+  ],
+  dietNotes: "Bali is very vegetarian-friendly — most warungs (local eateries) have meat-free options. Indian-style restaurants common in Ubud and Seminyak. Halal options widely available. Jain food limited but possible in upscale hotels.",
+  links: [
+    { label: "Official Bali Tourism Board", icon: "ti-globe", url: "https://www.balitourismboard.or.id" },
+    { label: "Indonesia Visa on Arrival info", icon: "ti-id", url: "https://molina.imigrasi.go.id" },
+    { label: "Health requirements (MOH India)", icon: "ti-heart-rate-monitor", url: "https://mohfw.gov.in" },
+    { label: "Trip Factory — Bali packages", icon: "ti-building-store", url: "#" }
+  ]
+};
+
+let currentView = "hub";
+let currentRegion = "ALL";
+let searchQuery = "";
+
+function render() {
+  const app = document.getElementById("app");
+  if (currentView === "hub") {
+    app.innerHTML = renderHub();
+  } else if (currentView === "bali") {
+    app.innerHTML = renderBali();
+  } else {
+    app.innerHTML = renderComingSoon(currentView);
+  }
+  attachEvents();
+}
+
+function renderHub() {
+  const allDests = Object.entries(DESTINATIONS);
+  const filtered = allDests.map(([region, dests]) => {
+    let filteredDests = dests;
+    if (currentRegion !== "ALL") filteredDests = region === currentRegion ? dests : [];
+    if (searchQuery) filteredDests = filteredDests.filter(d => d.toLowerCase().includes(searchQuery.toLowerCase()));
+    return [region, filteredDests];
+  }).filter(([_, d]) => d.length > 0);
+
+  const total = Object.values(DESTINATIONS).flat().length;
+
+  return `
+  <div class="top-nav">
+    <div class="nav-logo">
+      <div class="nav-logo-bars">
+        ${["#1e3a5f","#185fa5","#1abc9c","#3b6d11","#ba7517","#a32d2d"].map((c, i) => `<div class="nav-bar" style="background:${c};height:${14+i*2}px"></div>`).join("")}
+      </div>
+      <span class="nav-wordmark">ORN</span>
+    </div>
+    <span class="nav-badge">Destination Wiki</span>
+  </div>
+  <div class="hub-hero">
+    <h1>Destination Knowledge Hub</h1>
+    <p>${total} destinations across 4 regions — everything your team needs to sell with confidence</p>
+    <div class="hub-search">
+      <input type="text" placeholder="Search destinations..." id="search-input" value="${searchQuery}" />
+    </div>
+  </div>
+  <div class="region-tabs">
+    ${["ALL","ASIA","EUROPE","INDIA","OCEANIA"].map(r => `<button class="rtab${currentRegion===r?" active":""}" data-region="${r}">${r === "ALL" ? "All regions" : r}</button>`).join("")}
+  </div>
+  <div class="hub-body">
+    ${filtered.map(([region, dests]) => `
+      <div class="region-label">${region}</div>
+      <div class="dest-grid">
+        ${dests.map(d => `
+          <div class="dest-card${d==="Bali"?" featured":""}" data-dest="${d}">
+            <span class="flag">${FLAGS[d]||"🌍"}</span>
+            <div class="name">${d}</div>
+            ${d==="Bali"?`<span class="built-badge"><i class="ti ti-check" style="font-size:10px"></i> Full guide ready</span>`:`<span class="region-tag" style="font-size:11px;color:var(--color-text-tertiary)">Coming soon</span>`}
+          </div>
+        `).join("")}
+      </div>
+    `).join("")}
+  </div>`;
+}
+
+function renderBali() {
+  const d = BALI_DATA;
+  return `
+  <div class="top-nav">
+    <div class="nav-logo">
+      <div class="nav-logo-bars">
+        ${["#1e3a5f","#185fa5","#1abc9c","#3b6d11","#ba7517","#a32d2d"].map((c, i) => `<div class="nav-bar" style="background:${c};height:${14+i*2}px"></div>`).join("")}
+      </div>
+      <span class="nav-wordmark">ORN</span>
+    </div>
+    <span class="nav-badge">Destination Wiki</span>
+  </div>
+  <div class="dest-back" id="back-btn"><i class="ti ti-arrow-left"></i> All destinations</div>
+  <div class="dest-hero-img" style="position:relative">
+    <div style="width:100%;height:100%;background:linear-gradient(135deg,#0d4f8b 0%,#1a8a6e 50%,#2d6a1f 100%);position:absolute;top:0;left:0"></div>
+    <div class="dest-hero-overlay">
+      <div class="dest-hero-name">${d.flag} ${d.name}</div>
+      <div class="dest-hero-tagline">${d.tagline}</div>
+    </div>
+  </div>
+  <div class="dest-quickstats">
+    ${Object.entries(d.quickstats).map(([k,v]) => `<div class="qs-item"><div class="qs-label">${k}</div><div class="qs-value">${v}</div></div>`).join("")}
+  </div>
+  <div class="dest-body">
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-star" aria-hidden="true"></i> Why sell Bali</div>
+      <ul class="sell-bullets">
+        ${d.sell.map(s => `<li>${s}</li>`).join("")}
+      </ul>
+      <div class="traveller-types">
+        ${d.travellerTypes.map(t => `<span class="tt-chip${d.highlightTypes.some(h=>t.startsWith(h))?" highlight":""}">${t}</span>`).join("")}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-plane" aria-hidden="true"></i> Flights from India</div>
+      <div style="overflow-x:auto">
+      <table class="flight-table">
+        <thead><tr>
+          <th>From</th><th>To</th><th>Airlines</th><th>Duration</th><th>Type</th><th>Frequency</th>
+        </tr></thead>
+        <tbody>
+          ${d.flights.map(f => `<tr>
+            <td>${f.from}</td>
+            <td>${f.to}</td>
+            <td style="color:var(--color-text-secondary)">${f.airlines}</td>
+            <td>${f.time}</td>
+            <td><span class="${f.type==="direct"?"direct-badge":"connect-badge"}">${f.type==="direct"?"Direct":"Connecting"}</span></td>
+            <td style="color:var(--color-text-secondary)">${f.freq}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-id" aria-hidden="true"></i> Visa & entry requirements</div>
+      <div style="margin-bottom:12px"><span class="voa-badge"><i class="ti ti-check" style="font-size:12px"></i> Visa on Arrival</span></div>
+      <div class="visa-grid">
+        <div class="visa-item"><div class="visa-item-label">Visa type</div><div class="visa-item-value">${d.visa.type}</div></div>
+        <div class="visa-item"><div class="visa-item-label">Cost</div><div class="visa-item-value">${d.visa.cost}</div></div>
+        <div class="visa-item"><div class="visa-item-label">Validity</div><div class="visa-item-value">${d.visa.validity}</div></div>
+        <div class="visa-item"><div class="visa-item-label">Processing</div><div class="visa-item-value">${d.visa.processing}</div></div>
+      </div>
+      <div style="margin-top:10px;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+        <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px">Documents required</div>
+        <div style="font-size:13px;color:var(--color-text-primary)">${d.visa.documents}</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-map" aria-hidden="true"></i> Destination overview</div>
+      <div class="overview-text">
+        ${d.overview.map(p => `<p>${p}</p>`).join("")}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-sun" aria-hidden="true"></i> Weather & best time to visit</div>
+      <div class="weather-grid">
+        ${d.weather.map(w => `
+          <div class="month-cell ${w.type==="peak"?"peak":w.type==="low"?"low":""}">
+            <div class="mo">${w.mo}</div>
+            <span class="icon">${w.icon}</span>
+            <div class="temp">${w.temp}</div>
+          </div>
+        `).join("")}
+      </div>
+      <div class="season-legend">
+        <div class="sl-item"><div class="sl-dot" style="background:#b5d4f4"></div> Peak (Apr–Oct)</div>
+        <div class="sl-item"><div class="sl-dot" style="background:var(--color-border-tertiary)"></div> Shoulder</div>
+        <div class="sl-item"><div class="sl-dot" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)"></div> Wet season</div>
+      </div>
+      <div style="margin-top:12px;padding:10px 12px;background:#e6f1fb;border-radius:var(--border-radius-md)">
+        <div style="font-size:12px;color:#0c447c"><strong>India travel tip:</strong> Best aligned with Indian school summer holidays (Apr–Jun) and Christmas–New Year. Avoid monsoon (Nov–Mar) for beach-focused trips. Diwali long weekend in Oct–Nov can work for shorter 5-night trips.</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-sparkles" aria-hidden="true"></i> Top experiences & must-see sights</div>
+      <div class="exp-grid">
+        ${d.experiences.map(e => `
+          <div class="exp-card">
+            <div class="exp-img" style="background:${e.color}">${e.bg}</div>
+            <div class="exp-info">
+              <div class="exp-name">${e.name}</div>
+              <div class="exp-desc">${e.desc}</div>
+              <span class="exp-cat" style="background:${e.color};color:${e.textColor}">${e.cat}</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-info-circle" aria-hidden="true"></i> Practical information</div>
+      <div class="practical-grid">
+        ${d.practical.map(p => `
+          <div class="practical-item">
+            <div class="pi-label"><i class="ti ${p.icon}" style="font-size:12px" aria-hidden="true"></i>${p.label}</div>
+            <div class="pi-value">${p.value}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-bowl-chopsticks" aria-hidden="true"></i> Food & dining</div>
+      <div class="food-grid">
+        ${d.food.map(f => `
+          <div class="food-item">
+            <span class="food-emoji">${f.emoji}</span>
+            <div class="food-name">${f.name}</div>
+            <div class="food-desc">${f.desc}</div>
+          </div>
+        `).join("")}
+      </div>
+      <div style="margin-top:12px;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:13px;color:var(--color-text-secondary);line-height:1.6">
+        <strong style="color:var(--color-text-primary)">Dietary note:</strong> ${d.dietNotes}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="ti ti-link" aria-hidden="true"></i> Useful links</div>
+      <div class="links-list">
+        ${d.links.map(l => `
+          <div class="link-row" onclick="openLink('${l.url}')">
+            <div class="link-row-label"><i class="ti ${l.icon}" aria-hidden="true"></i>${l.label}</div>
+            <i class="ti ti-external-link" style="font-size:14px;color:var(--color-text-tertiary)" aria-hidden="true"></i>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Disclaimer:</strong> Information in this guide is compiled for sales reference purposes and may change without notice. Visa fees, flight schedules, and entry requirements should always be verified against official government and airline sources before advising clients. ORN / Trip Factory accepts no liability for inaccuracies.
+    </div>
+  </div>`;
+}
+
+function renderComingSoon(dest) {
+  return `
+  <div class="top-nav">
+    <div class="nav-logo">
+      <div class="nav-logo-bars">
+        ${["#1e3a5f","#185fa5","#1abc9c","#3b6d11","#ba7517","#a32d2d"].map((c, i) => `<div class="nav-bar" style="background:${c};height:${14+i*2}px"></div>`).join("")}
+      </div>
+      <span class="nav-wordmark">ORN</span>
+    </div>
+    <span class="nav-badge">Destination Wiki</span>
+  </div>
+  <div class="dest-back" id="back-btn"><i class="ti ti-arrow-left"></i> All destinations</div>
+  <div class="coming-soon-overlay">
+    <i class="ti ti-map-pin cs-icon" aria-hidden="true"></i>
+    <div class="cs-title">${FLAGS[dest]||"🌍"} ${dest}</div>
+    <div class="cs-text">This destination guide is being built. It will follow the same full 11-section format as the Bali template.</div>
+    <div style="margin-top:1.5rem">
+      <button onclick="sendPrompt('Build the full destination fact sheet for ${dest} using the same structure as Bali')" style="font-size:13px;padding:10px 20px;border-radius:var(--border-radius-md);cursor:pointer">
+        Build ${dest} guide now ↗
+      </button>
+    </div>
+  </div>`;
+}
+
+function attachEvents() {
+  document.querySelectorAll(".rtab").forEach(btn => {
+    btn.addEventListener("click", () => { currentRegion = btn.dataset.region; render(); });
+  });
+  document.querySelectorAll(".dest-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const dest = card.dataset.dest;
+      if (dest === "Bali") { currentView = "bali"; }
+      else { currentView = dest; }
+      render();
+      window.scrollTo(0, 0);
+    });
+  });
+  const searchInput = document.getElementById("search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => { searchQuery = e.target.value; render(); });
+  }
+  const backBtn = document.getElementById("back-btn");
+  if (backBtn) {
+    backBtn.addEventListener("click", () => { currentView = "hub"; render(); window.scrollTo(0,0); });
+  }
+}
+
+render();
+</script>
